@@ -1,0 +1,76 @@
+syntax = "proto3";
+package com.grpc.store;
+option java_multiple_files = true;
+option java_outer_classname = "StoreCover";
+option java_package = "com.grpc.store";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+message Store{
+  UUID id = 1;
+  string address = 2;
+  int64 contact = 3;
+  google.protobuf.Timestamp openingDate = 4;
+  repeated Aisle aisles = 5;
+  enum Status{
+    CLOSED = 0;
+    OPENED = 1;
+    PERMANENTLY_CLOSED = 2;
+    WILL_OPEN_IN_FUTURE = 3;
+  }
+  Status status = 6;
+  Timing timing = 7;
+}
+
+message Timing{
+  google.protobuf.Timestamp openAt = 1;
+  google.protobuf.Timestamp closeAt = 2;
+}
+
+message Aisle{
+  UUID id = 1;
+  Coordinate location = 2;
+  repeated Bay bays = 3;
+}
+
+message Bay{
+  UUID id = 1;
+  int32 count = 2;
+  Dimension dimension = 3;
+}
+
+message Coordinate{
+  float lat = 1;
+  float log = 2;
+  float alt = 3;
+}
+
+message Dimension{
+  float width = 1;
+  float height = 2;
+  float breadth = 3;
+}
+
+message UUID{
+  string uuid = 1;
+}
+
+message StoreCall{
+  UUID id = 1;
+  Store.Status status = 2;
+  Bay bay = 3;
+  Aisle aisle = 4;
+  Bay bays = 5;
+  Aisle aisles = 6;
+  Timing timing = 7;
+  int64 contact = 8;
+}
+
+service StoreService{
+  rpc addStore(Store) returns (google.protobuf.Empty);
+  rpc changeStoreStatus(StoreCall) returns (Store);
+  rpc addBay(StoreCall) returns (Store);
+  rpc addAisle(StoreCall) returns (Store);
+  rpc changeTiming(StoreCall) returns (Store);
+  rpc changeContact(StoreCall) returns (Store);
+}
